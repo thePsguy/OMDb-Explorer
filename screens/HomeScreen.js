@@ -1,15 +1,14 @@
 import React from 'react';
 import {
-  Image,
-  Platform,
   ScrollView,
   StyleSheet,
-  Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import ListingCard from '../components/ListingCard';
 import Keys from '../constants/Keys';
+const axios = require('axios');
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -21,7 +20,8 @@ export default class HomeScreen extends React.Component {
 
     this.state = {
       apiKey: Keys.apiKey,
-      showKeys: ['tt0386676', "tt1266020", "tt4955642"],
+      imdbKeys: ['tt0386676', "tt1266020", "tt4955642"],
+      searchText: ""
     };
   }
 
@@ -32,11 +32,39 @@ export default class HomeScreen extends React.Component {
     })
   };
 
+  searchOMDb = (searchText) => {
+    let requestParams = {};
+    requestParams[Keys.params.apiKey] = Keys.apiKey;
+    requestParams[Keys.params.searchQuery] = searchText;
+    let self = this;
+    axios.get(Keys.baseUrl, {
+      params: requestParams
+    })
+      .then(function (response) {
+        let imdbKeys = [];
+        response.data.Search && response.data.Search.map(item => {
+          imdbKeys.push(item.imdbID)
+        });
+        self.setState({imdbKeys})
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+  };
+
   render() {
     return (
       <View style={styles.container}>
+        <TextInput
+          style={styles.searchText}
+          onChangeText={(searchText) => this.setState({searchText})}
+          onSubmitEditing={(e) => this.searchOMDb(e.nativeEvent.text)}
+          value={this.state.searchText}
+          placeholder={"Search OMDb"}
+          placeholderTextColor={"#eaeaea"}
+        />
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          {this.state.showKeys.map((key, index) => {
+          {this.state.imdbKeys.map((key, index) => {
             return (
             <TouchableOpacity key={key} onPress={(e) => this.handleCardPress(key, e)}>
               <ListingCard imdbID={key} />
@@ -63,4 +91,14 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     opacity: 1,
   },
+  searchText: {
+    color: '#fff',
+    height: 40,
+    width: '100%',
+    marginTop: 30,
+    borderColor: '#fff',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingLeft: 10
+  }
 });

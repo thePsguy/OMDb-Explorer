@@ -61,8 +61,11 @@ export default class TitleDetail extends React.Component {
       seasonData.Episodes.map((item, index) => {
         this.fetchFromOmdb(this.state.imdbID, this.state.season, item.Episode, (data) => {
           this.episodes.push(data);
-          this.episodes.sort((a, b) => a.Episode > b.Episode);
-          this.setState({episodes: this.episodes});
+          if (this.episodes.length === seasonData.Episodes.length) {
+            console.log(this.episodes);
+            this.episodes.sort((a, b) => a.Episode - b.Episode);
+            this.setState({episodes: this.episodes});
+          }
         })
       })
     });
@@ -70,7 +73,6 @@ export default class TitleDetail extends React.Component {
 
   render() {
     const titleData = this.state.titleData;
-    console.log(this.state.seasonData);
     return (
       <View style={styles.container}>
         <TouchableOpacity onPress={() => this.props.navigation.goBack()} style={styles.backButton}>

@@ -5,6 +5,7 @@ export default {
     apiKey: "apikey",
     imdbID: "i",
     season: "season",
-    episode: "episode"
+    episode: "episode",
+    searchQuery: "s",
   }
 };
